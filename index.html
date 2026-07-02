@@ -2,8 +2,24 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="description" content="Personal German B2 vocabulary trainer with spaced repetition, topic practice and sentence drills. Includes a French beginner module.">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#3b5bdb">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="B2 Trainer">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%233b5bdb'/%3E%3Ctext x='50' y='68' font-size='52' font-family='system-ui,sans-serif' font-weight='800' fill='white' text-anchor='middle'%3EDe%3C/text%3E%3C/svg%3E">
 <title>German B2 Trainer</title>
+<script>
+// Apply saved theme before first paint to avoid a flash of the wrong scheme
+(function(){
+  try{
+    const t=localStorage.getItem('trainer_theme');
+    if(t==='dark'||(t!=='light'&&matchMedia('(prefers-color-scheme: dark)').matches))
+      document.documentElement.dataset.theme='dark';
+  }catch(e){}
+})();
+</script>
 <style>
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -12,9 +28,26 @@
   --ok:#2f9e44;--okl:#d3f9d8;--err:#c92a2a;--errl:#ffe3e3;
   --warn:#e67700;--warnl:#fff3bf;--text:#1a1a2e;--muted:#6c757d;
   --border:#dee2e6;--shadow:0 2px 8px rgba(0,0,0,.1);--radius:12px;
-  --hard:#ae3ec9;--hardl:#f3d9fa
+  --hard:#ae3ec9;--hardl:#f3d9fa;
+  --teall:#c3fae8;--fr:#c92a2a;--frl:#fff5f5;
+  color-scheme:light
 }
-body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:16px}
+:root[data-theme=dark]{
+  --bg:#12141a;--card:#1d2027;--primary:#5c7cfa;--plight:#252c48;
+  --ok:#51cf66;--okl:#1c3a26;--err:#ff8787;--errl:#432226;
+  --warn:#fcc419;--warnl:#3b2f10;--text:#e9ecef;--muted:#9aa3b2;
+  --border:#343a46;--shadow:0 2px 8px rgba(0,0,0,.45);
+  --hard:#da77f2;--hardl:#372141;
+  --teall:#123f33;--fr:#ff8787;--frl:#3c2224;
+  color-scheme:dark
+}
+body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;
+  padding:16px;padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right));
+  padding-bottom:max(16px,env(safe-area-inset-bottom));transition:background .2s,color .2s}
+:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
 #app{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
 .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px}
 .card-sm{padding:14px 18px}
@@ -50,7 +83,7 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:v
 .ic-green{background:var(--okl)}
 .ic-orange{background:var(--warnl)}
 .ic-purple{background:var(--hardl)}
-.ic-teal{background:#c3fae8}
+.ic-teal{background:var(--teall)}
 .action-info{flex:1}
 .action-title{font-size:16px;font-weight:700}
 .action-sub{font-size:13px;color:var(--muted);margin-top:2px}
@@ -195,7 +228,7 @@ h2{font-size:18px;font-weight:700}
 .remove-btn{background:none;border:1.5px solid var(--border);border-radius:6px;
   cursor:pointer;padding:4px 8px;font-size:13px;color:var(--muted);
   transition:background .12s,border-color .12s,color .12s;line-height:1;flex-shrink:0}
-.remove-btn:hover{background:#fef2f2;border-color:#f87171;color:#dc2626}
+.remove-btn:hover{background:var(--errl);border-color:var(--err);color:var(--err)}
 .edit-wl-btn{background:none;border:1.5px solid var(--border);border-radius:6px;
   cursor:pointer;padding:4px 7px;font-size:13px;color:var(--muted);
   transition:background .12s,border-color .12s;line-height:1;flex-shrink:0}
@@ -240,11 +273,11 @@ h2{font-size:18px;font-weight:700}
 .grammar-table th{background:var(--plight);padding:8px 10px;text-align:left;font-weight:700;color:var(--primary);border:1px solid var(--border)}
 .grammar-table td{padding:8px 10px;border:1px solid var(--border)}
 .grammar-table tr:nth-child(even) td{background:var(--bg)}
-.fr-word{font-size:28px;font-weight:900;color:#c92a2a;line-height:1.2}
+.fr-word{font-size:28px;font-weight:900;color:var(--fr);line-height:1.2}
 .fr-phon{font-size:14px;color:var(--muted);font-style:italic;margin:4px 0 2px}
 .fr-en{font-size:18px;font-weight:700;color:var(--text)}
 .fr-tip{font-size:13px;color:var(--muted);margin-top:6px;line-height:1.5}
-.fr-study-box{border:2px solid #c92a2a;background:#fff5f5;border-radius:10px;padding:18px;margin:14px 0;text-align:center}
+.fr-study-box{border:2px solid var(--fr);background:var(--frl);border-radius:10px;padding:18px;margin:14px 0;text-align:center}
 .lesson-item{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 20px;display:flex;align-items:center;gap:14px;cursor:pointer;border:2px solid transparent;transition:border-color .15s;margin-bottom:0}
 .lesson-item:hover{border-color:var(--primary)}
 .lesson-item.done{border-color:var(--ok)}
@@ -254,7 +287,7 @@ h2{font-size:18px;font-weight:700}
 .lesson-title{font-size:15px;font-weight:700}
 .lesson-meta{font-size:12px;color:var(--muted);margin-top:2px}
 .fr-mc-opt{padding:13px 14px;border:2px solid var(--border);border-radius:8px;background:var(--card);cursor:pointer;font-size:15px;font-weight:500;text-align:left;transition:border-color .12s,background .12s;font-family:inherit;line-height:1.3;width:100%;margin-bottom:8px}
-.fr-mc-opt:hover:not(.fr-mc-locked){border-color:#c92a2a;background:#fff5f5}
+.fr-mc-opt:hover:not(.fr-mc-locked){border-color:var(--fr);background:var(--frl)}
 .fr-mc-correct{border-color:var(--ok)!important;background:var(--okl)!important;color:var(--ok);font-weight:700}
 .fr-mc-wrong{border-color:var(--err)!important;background:var(--errl)!important;color:var(--err)}
 .fr-mc-locked{cursor:not-allowed}
@@ -268,6 +301,28 @@ h2{font-size:18px;font-weight:700}
 .topic-complete-text{flex:1}
 .topic-complete-title{font-size:17px;font-weight:800;line-height:1.2}
 .topic-complete-sub{font-size:13px;opacity:.88;margin-top:3px;line-height:1.4}
+
+/* Card entry animation */
+@keyframes cardIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.card,.fr-card,.action-card,.topic-item,.lesson-item,.list-card{animation:cardIn .18s ease-out}
+
+/* Theme toggle */
+.theme-btn{background:none;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;
+  padding:7px 10px;font-size:16px;line-height:1;transition:background .12s,border-color .12s;flex-shrink:0}
+.theme-btn:hover{background:var(--plight);border-color:var(--primary)}
+
+/* Manual override ("my answer was correct") */
+.override-row{display:flex;align-items:center;justify-content:center;margin-top:10px}
+.override-btn{background:none;border:none;cursor:pointer;font-family:inherit;
+  font-size:13px;font-weight:600;color:var(--muted);text-decoration:underline;
+  text-underline-offset:3px;padding:6px 10px;border-radius:6px;transition:color .12s}
+.override-btn:hover{color:var(--ok)}
+
+/* Word list search */
+.search-input{width:100%;padding:11px 14px;font-size:15px;border:2px solid var(--border);
+  border-radius:8px;outline:none;font-family:inherit;background:var(--card);color:var(--text);
+  transition:border-color .2s}
+.search-input:focus{border-color:var(--primary)}
 
 </style>
 </head>
@@ -580,8 +635,39 @@ function speak(text){
 }
 function speakBtn(text,cls=''){
   return el('button',{cls:'speak-btn '+cls,type:'button',title:'Listen to pronunciation',
-    onclick:e=>{e.stopPropagation();speak(text)}},'🔊');
+    'aria-label':'Listen to pronunciation',onclick:e=>{e.stopPropagation();speak(text)}},'🔊');
 }
+
+// ── Theme ─────────────────────────────────────────────────────────────────────
+function currentTheme(){return document.documentElement.dataset.theme==='dark'?'dark':'light'}
+function applyTheme(t){
+  if(t==='dark')document.documentElement.dataset.theme='dark';
+  else delete document.documentElement.dataset.theme;
+  const meta=document.querySelector('meta[name=theme-color]');
+  if(meta)meta.setAttribute('content',t==='dark'?'#1d2027':'#3b5bdb');
+}
+applyTheme(currentTheme());
+function toggleTheme(){
+  const next=currentTheme()==='dark'?'light':'dark';
+  try{localStorage.setItem('trainer_theme',next)}catch(e){}
+  applyTheme(next);
+}
+function themeBtn(){
+  return el('button',{cls:'theme-btn',type:'button','aria-label':'Toggle dark mode',
+    title:'Toggle dark mode',onclick:()=>{toggleTheme();render()}},
+    currentTheme()==='dark'?'☀️':'🌙');
+}
+
+// ── Keyboard shortcuts ────────────────────────────────────────────────────────
+// Screens register handlers per render; render()/frRender() clear the registry.
+let KB={};
+document.addEventListener('keydown',e=>{
+  if(e.altKey||e.ctrlKey||e.metaKey||e.repeat)return;
+  const t=e.target;
+  if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.tagName==='SELECT'||t.tagName==='BUTTON'))return;
+  const fn=KB[e.key];
+  if(fn){e.preventDefault();fn()}
+});
 
 // ── DOM helpers ───────────────────────────────────────────────────────────────
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
@@ -600,6 +686,7 @@ const btn=(cls,txt,cb)=>el('button',{cls:'btn '+cls,onclick:cb,type:'button'},tx
 
 // ── Render dispatcher ─────────────────────────────────────────────────────────
 function render(){
+  KB={};
   if(currentLang==='fr'){frRender();return;}
   const app=document.getElementById('app');
   app.textContent='';
@@ -627,32 +714,38 @@ function buildActivityChart(data){
   // Grid lines + Y labels at 0%, 50%, 100%
   [0,0.5,1].forEach(f=>{
     const gv=f*maxV,gy=yp(gv);
-    svg.append(mk('line',{x1:padL,y1:gy.toFixed(1),x2:W-padR,y2:gy.toFixed(1),stroke:'#dee2e6','stroke-width':'1'}));
+    const gl=mk('line',{x1:padL,y1:gy.toFixed(1),x2:W-padR,y2:gy.toFixed(1),'stroke-width':'1'});
+    gl.style.stroke='var(--border)';svg.append(gl);
     const t=document.createElementNS(ns,'text');
     t.setAttribute('x',padL-4);t.setAttribute('y',(gy+4).toFixed(1));
     t.setAttribute('text-anchor','end');t.setAttribute('font-size','9');
-    t.setAttribute('font-family','system-ui,sans-serif');t.setAttribute('fill','#6c757d');
+    t.setAttribute('font-family','system-ui,sans-serif');t.style.fill='var(--muted)';
     t.textContent=Math.round(gv);svg.append(t);
   });
 
   // Series: area + line + dots  [{key,color,fillOpacity}]
-  [{key:'reviewed',color:'#2f9e44',fo:'0.1'},{key:'learned',color:'#3b5bdb',fo:'0.13'}].forEach(s=>{
+  [{key:'reviewed',color:'var(--ok)',fo:'0.1'},{key:'learned',color:'var(--primary)',fo:'0.13'}].forEach(s=>{
     const pts=data.map((d,i)=>`${xp(i).toFixed(1)},${yp(d[s.key]).toFixed(1)}`);
     const baseY=yp(0).toFixed(1);
-    svg.append(mk('polygon',{points:[...pts,`${xp(n-1).toFixed(1)},${baseY}`,`${xp(0).toFixed(1)},${baseY}`].join(' '),
-      fill:s.color,'fill-opacity':s.fo,stroke:'none'}));
-    svg.append(mk('polyline',{points:pts.join(' '),fill:'none',stroke:s.color,'stroke-width':'2',
-      'stroke-linejoin':'round','stroke-linecap':'round'}));
-    data.forEach((d,i)=>{if(d[s.key]>0)svg.append(mk('circle',{cx:xp(i).toFixed(1),cy:yp(d[s.key]).toFixed(1),r:'3',fill:s.color}))});
+    const area=mk('polygon',{points:[...pts,`${xp(n-1).toFixed(1)},${baseY}`,`${xp(0).toFixed(1)},${baseY}`].join(' '),
+      'fill-opacity':s.fo,stroke:'none'});
+    area.style.fill=s.color;svg.append(area);
+    const line=mk('polyline',{points:pts.join(' '),fill:'none','stroke-width':'2',
+      'stroke-linejoin':'round','stroke-linecap':'round'});
+    line.style.stroke=s.color;svg.append(line);
+    data.forEach((d,i)=>{if(d[s.key]>0){
+      const dot=mk('circle',{cx:xp(i).toFixed(1),cy:yp(d[s.key]).toFixed(1),r:'3'});
+      dot.style.fill=s.color;svg.append(dot);
+    }});
   });
 
-  // X labels: every 2 days + last
+  // X labels: every 2 days + last (skip the neighbour of "Today" so they don't overlap)
   data.forEach((d,i)=>{
-    if(i%2!==0&&i!==n-1)return;
+    if((i%2!==0||i===n-2)&&i!==n-1)return;
     const t=document.createElementNS(ns,'text');
     t.setAttribute('x',xp(i).toFixed(1));t.setAttribute('y',H-8);
     t.setAttribute('text-anchor',i===0?'start':i===n-1?'end':'middle');
-    t.setAttribute('font-size','9');t.setAttribute('font-family','system-ui,sans-serif');t.setAttribute('fill','#6c757d');
+    t.setAttribute('font-size','9');t.setAttribute('font-family','system-ui,sans-serif');t.style.fill='var(--muted)';
     t.textContent=i===n-1?'Today':new Date(d.date+'T12:00:00').toLocaleDateString('en',{timeZone:'America/New_York',month:'short',day:'numeric'});
     svg.append(t);
   });
@@ -672,7 +765,10 @@ function renderHome(){
   hdr.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
     <div><div style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700">B2 TRAINER</div>
     <h1>German Vocabulary</h1></div><div style="font-size:32px">🇩🇪</div></div>`;
-  hdr.append(langToggle);
+  const togRow=div('');
+  togRow.style.cssText='display:flex;gap:8px;align-items:center;justify-content:space-between';
+  togRow.append(langToggle,themeBtn());
+  hdr.append(togRow);
 
   let streakEl=null;
   if(sunday){
@@ -760,8 +856,8 @@ function renderHome(){
   const chartHdr=div('chart-hdr');
   chartHdr.innerHTML=`<span class="chart-title">Activity · 14 days</span>
     <span class="chart-legend">
-      <span><b style="color:#3b5bdb">■</b> ${totL} learned</span>
-      <span><b style="color:#2f9e44">■</b> ${totR} reviewed</span>
+      <span><b style="color:var(--primary)">■</b> ${totL} learned</span>
+      <span><b style="color:var(--ok)">■</b> ${totR} reviewed</span>
     </span>`;
   chartCard.append(chartHdr,buildActivityChart(chartData));
 
@@ -924,7 +1020,7 @@ function renderTopicSelect(){
 
   const hdr=div('page-hdr card card-sm');
   hdr.append(
-    el('button',{cls:'back',onclick:goHome},'←'),
+    el('button',{cls:'back','aria-label':'Go back',onclick:goHome},'←'),
     el('h2',{},'Practice by Topic'),
     el('span',{style:'font-size:13px;color:var(--muted);margin-left:auto'},cats.length+' topics')
   );
@@ -967,7 +1063,7 @@ function renderLearn(){
   const hdr=div('card card-sm');
   const topRow=div('page-hdr');
   topRow.append(
-    el('button',{cls:'back',onclick:goHome},'←'),
+    el('button',{cls:'back','aria-label':'Go back',onclick:goHome},'←'),
     el('h2',{},'Learn New Words'),
     el('span',{style:'font-size:13px;color:var(--muted);margin-left:auto'},`✓ ${done}/${total}`)
   );
@@ -1014,6 +1110,7 @@ function renderStudyCard(w){
   c.append(box,spkRow);
   const goBtn=btn('btn-primary btn-full','Got it →',()=>advanceLearn(()=>S.mcQ.push(w)));
   goBtn.style.marginTop='16px';c.append(goBtn);
+  KB['Enter']=()=>goBtn.click();
   setTimeout(()=>speak(w.g),350);
   return c;
 }
@@ -1035,7 +1132,10 @@ function renderMCCard(w){
       +(S.mcDone&&isOk?' mc-correct':'')
       +(S.mcDone&&!isOk&&S.lastChosen===opt?' mc-wrong':'');
     const ob=el('button',{cls,type:'button'},opt);
-    if(!S.mcDone)ob.addEventListener('click',()=>{S.mcDone=true;S.mcOk=isOk;S.lastChosen=opt;render()});
+    if(!S.mcDone){
+      ob.addEventListener('click',()=>{S.mcDone=true;S.mcOk=isOk;S.lastChosen=opt;render()});
+      KB[String(grid.children.length+1)]=()=>ob.click();
+    }
     grid.append(ob);
   }
   c.append(grid);
@@ -1046,11 +1146,18 @@ function renderMCCard(w){
       const fb=div('feedback fb-ok');fb.append('✓ Correct! ',speakBtn(w.g));c.append(fb);
       const nb=btn('btn-ok btn-full','Next →',()=>advanceLearn(()=>{resetMC();S.typeQ.push(w);S.stats.correct++}));
       nb.style.marginTop='14px';c.append(nb);
+      KB['Enter']=()=>nb.click();
     } else {
       const fb=div('feedback fb-err');fb.append('✗ Wrong — correct answer highlighted. ',speakBtn(w.g));c.append(fb);
       // Re-queue for MC retry after a few cards
       const nb=btn('btn-ghost btn-full','Next →',()=>advanceLearn(()=>{resetMC();S.mcQ.push(w);S.stats.wrong++}));
       nb.style.marginTop='14px';c.append(nb);
+      KB['Enter']=()=>nb.click();
+      const orow=div('override-row');
+      const ob2=el('button',{cls:'override-btn',type:'button',title:'Count this answer as correct'},
+        '✓ Mark as correct (misclick)');
+      ob2.addEventListener('click',()=>advanceLearn(()=>{resetMC();S.typeQ.push(w);S.stats.correct++}));
+      orow.append(ob2);c.append(orow);
     }
   }
   return c;
@@ -1081,7 +1188,7 @@ function renderReview(){
   const backFn=(S.rtype==='topic'||S.rtype==='comprehensive')?()=>{S.screen='topicselect';render()}:goHome;
   const hdr=div('page-hdr card card-sm');
   hdr.append(
-    el('button',{cls:'back',onclick:backFn},'←'),
+    el('button',{cls:'back','aria-label':'Go back',onclick:backFn},'←'),
     el('h2',{},title),
     el('span',{style:'font-size:13px;color:var(--muted);margin-left:auto'},S.qIdx+'/'+S.queue.length)
   );
@@ -1091,6 +1198,7 @@ function renderReview(){
   pf.style.width=(S.queue.length?(S.qIdx/S.queue.length*100):0)+'%';
   pb.append(pf);
 
+  const prevLastWrong=card(w.id).lastWrong;
   const cardEl=buildTypeCard(w,{
     onCorrect:(quality)=>{
       if(S.rtype==='daily'||S.rtype==='difficult'||S.rtype==='comprehensive'||S.rtype==='weekly'){
@@ -1110,6 +1218,9 @@ function renderReview(){
     },
     markMistake:()=>{
       if(S.rtype==='today'||S.rtype==='comprehensive'||S.rtype==='weekly'){const c=card(w.id);c.lastWrong=today();save()}
+    },
+    unmarkMistake:()=>{
+      if(S.rtype==='today'||S.rtype==='comprehensive'||S.rtype==='weekly'){const c=card(w.id);c.lastWrong=prevLastWrong;save()}
     },
     trackSRS:S.rtype==='daily'||S.rtype==='difficult'||S.rtype==='comprehensive'||S.rtype==='weekly',
     retryBanner:S.retrying?'Retry — words you missed earlier':null,
@@ -1147,6 +1258,62 @@ function buildTypeCard(w,opts){
   const submitBtn=btn('btn-primary','Check →',submit);
   let answered=false;
 
+  function showCorrectUI(){
+    ratingArea.classList.remove('hidden');
+    ratingArea.textContent='';
+    if(opts.trackSRS){
+      const row=div('rating-row');
+      const ratings=[
+        {q:0,cls:'r-bad',l:'Again',s:'Reset',k:'1'},
+        {q:1,cls:'r-hard',l:'Hard',s:'Short',k:'2'},
+        {q:2,cls:'r-ok',l:'Good',s:'Normal',k:'3'},
+        {q:3,cls:'r-easy',l:'Easy',s:'Longer',k:'4'},
+      ];
+      for(const r of ratings){
+        const rb=el('button',{cls:'rbtn '+r.cls,type:'button',title:'Shortcut: '+r.k,
+          onclick:()=>{if(r.q===0){opts.onWrong();}else{opts.onCorrect(r.q);}}});
+        rb.innerHTML=`${r.l}<sub>${r.s}</sub>`;
+        row.append(rb);
+        KB[r.k]=()=>rb.click();
+      }
+      ratingArea.append(row);
+      KB['Enter']=()=>row.children[2].click();
+    } else {
+      const cb=btn('btn-ok btn-full','Continue →',()=>opts.onCorrect(2));
+      ratingArea.append(cb);
+      KB['Enter']=()=>cb.click();
+    }
+  }
+
+  // Manual override: user judged their own answer to be a valid alternative.
+  // Reverses the wrong-answer stats and mistake mark, then continues down the
+  // normal correct path (incl. SRS rating buttons) — nothing wrong is recorded.
+  function acceptOverride(){
+    S.stats.wrong--;S.stats.correct++;
+    opts.unmarkMistake?.();
+    inp.classList.remove('input-err','input-warn');
+    inp.classList.add('input-ok');
+    fb.className='feedback fb-ok';
+    fb.innerHTML=`✓ Accepted as correct — <strong>${esc(w.g)}</strong> `;
+    fb.append(speakBtn(w.g));
+    showCorrectUI();
+  }
+
+  function showWrongUI(){
+    ratingArea.classList.remove('hidden');
+    ratingArea.textContent='';
+    const cb=btn('btn-ghost btn-full','Continue →',opts.onWrong);
+    ratingArea.append(cb);
+    KB['Enter']=()=>cb.click();
+    const orow=div('override-row');
+    const ob=el('button',{cls:'override-btn',type:'button',
+      title:'Use this if your answer was a valid alternative translation'},
+      '✓ My answer was actually correct');
+    ob.addEventListener('click',acceptOverride);
+    orow.append(ob);
+    ratingArea.append(orow);
+  }
+
   function submit(){
     if(answered)return;
     answered=true;
@@ -1161,25 +1328,7 @@ function buildTypeCard(w,opts){
       fb.append(speakBtn(w.g));
       speak(w.g);
       S.stats.correct++;
-      ratingArea.classList.remove('hidden');
-      if(opts.trackSRS){
-        const row=div('rating-row');
-        const ratings=[
-          {q:0,cls:'r-bad',l:'Again',s:'Reset'},
-          {q:1,cls:'r-hard',l:'Hard',s:'Short'},
-          {q:2,cls:'r-ok',l:'Good',s:'Normal'},
-          {q:3,cls:'r-easy',l:'Easy',s:'Longer'},
-        ];
-        for(const r of ratings){
-          const rb=el('button',{cls:'rbtn '+r.cls,type:'button',
-            onclick:()=>{if(r.q===0){opts.onWrong();}else{opts.onCorrect(r.q);}}});
-          rb.innerHTML=`${r.l}<sub>${r.s}</sub>`;
-          row.append(rb);
-        }
-        ratingArea.append(row);
-      } else {
-        ratingArea.append(btn('btn-ok btn-full','Continue →',()=>opts.onCorrect(2)));
-      }
+      showCorrectUI();
     } else if(result==='close'){
       opts.markMistake?.();
       inp.classList.add('input-warn');
@@ -1187,8 +1336,7 @@ function buildTypeCard(w,opts){
       fb.innerHTML=`Almost! Correct: <strong>${esc(w.g)}</strong> `;
       fb.append(speakBtn(w.g));speak(w.g);
       S.stats.wrong++;
-      ratingArea.classList.remove('hidden');
-      ratingArea.append(btn('btn-ghost btn-full','Continue →',opts.onWrong));
+      showWrongUI();
     } else {
       opts.markMistake?.();
       inp.classList.add('input-err');
@@ -1196,8 +1344,7 @@ function buildTypeCard(w,opts){
       fb.innerHTML=`✗ Answer: <strong>${esc(w.g)}</strong> `;
       fb.append(speakBtn(w.g));speak(w.g);
       S.stats.wrong++;
-      ratingArea.classList.remove('hidden');
-      ratingArea.append(btn('btn-ghost btn-full','Continue →',opts.onWrong));
+      showWrongUI();
     }
   }
 
@@ -1269,10 +1416,11 @@ function renderWordList(){
   const words=cfg.words();
 
   const hdr=div('page-hdr card card-sm');
+  const cnt=el('span',{style:'font-size:13px;color:var(--muted);margin-left:auto'},words.length+' words');
   hdr.append(
-    el('button',{cls:'back',onclick:()=>{S.screen='home';render()}},'←'),
+    el('button',{cls:'back','aria-label':'Go back',onclick:()=>{S.screen='home';render()}},'←'),
     el('h2',{},cfg.label),
-    el('span',{style:'font-size:13px;color:var(--muted);margin-left:auto'},words.length+' words')
+    cnt
   );
 
   if(!words.length){
@@ -1308,14 +1456,14 @@ function renderWordList(){
       body.append(de,en);
       const meta=cfg.meta(w);
       if(meta){const m=div('wl-meta');m.textContent=meta;body.append(m)}
-      const eb=el('button',{cls:'edit-wl-btn',type:'button',title:'Edit word',
+      const eb=el('button',{cls:'edit-wl-btn',type:'button',title:'Edit word','aria-label':'Edit word',
         onclick:()=>{S.editWordId=w.id;S.screen='editword';render()}});
       eb.textContent='✏';
       item.append(idx,body,speakBtn(w.g),eb);
       const rightText=cfg.right&&cfg.right(w);
       if(rightText){const r=div('wl-right');r.innerHTML=`<span class="wl-interval">${esc(rightText)}</span>`;item.append(r)}
       if(cfg.removeBtn){
-        const rb=el('button',{cls:'remove-btn',type:'button',title:'Remove from difficult words',
+        const rb=el('button',{cls:'remove-btn',type:'button',title:'Remove from difficult words','aria-label':'Remove from difficult words',
           onclick:()=>{card(w.id).lastWrong=null;save();S.screen='wordlist';render()}});
         rb.textContent='✕';
         item.append(rb);
@@ -1326,7 +1474,31 @@ function renderWordList(){
     sections.push(section);
   }
 
-  return nodes(hdr,...sections);
+  // Live search — filters items in place so typing never loses focus
+  let searchCard=null;
+  if(words.length>8){
+    searchCard=div('card card-sm');
+    const si=el('input',{cls:'search-input',type:'search',placeholder:'Search German or English…',
+      'aria-label':'Search words',autocomplete:'off'});
+    si.addEventListener('input',()=>{
+      const q=si.value.toLowerCase().trim();
+      let shown=0;
+      for(const sec of sections){
+        let vis=0;
+        sec.querySelectorAll('.wl-item').forEach(it=>{
+          const hit=!q||it.textContent.toLowerCase().includes(q);
+          it.style.display=hit?'':'none';
+          if(hit)vis++;
+        });
+        sec.style.display=vis?'':'none';
+        shown+=vis;
+      }
+      cnt.textContent=(q?shown+' of ':'')+words.length+' words';
+    });
+    searchCard.append(si);
+  }
+
+  return nodes(hdr,searchCard,...sections);
 }
 
 // ── Edit Word screen ──────────────────────────────────────────────────────────
@@ -1340,7 +1512,7 @@ function renderEditWord(){
 
   const hdr=div('page-hdr card card-sm');
   hdr.append(
-    el('button',{cls:'back',onclick:()=>{S.screen='wordlist';render()}},'←'),
+    el('button',{cls:'back','aria-label':'Go back',onclick:()=>{S.screen='wordlist';render()}},'←'),
     el('h2',{},'Edit Word'),
     el('span',{style:'font-size:12px;color:var(--muted);margin-left:auto'},isCustom?'Custom':'Built-in')
   );
@@ -1390,7 +1562,7 @@ function renderEditWord(){
 function renderWordImport(){
   const hdr=div('page-hdr card card-sm');
   hdr.append(
-    el('button',{cls:'back',onclick:goHome},'←'),
+    el('button',{cls:'back','aria-label':'Go back',onclick:goHome},'←'),
     el('h2',{},'Import Words')
   );
 
@@ -1479,7 +1651,7 @@ function renderSentencePractice(){
   const w=words[idx];
   const hdr=div('page-hdr card card-sm');
   hdr.append(
-    el('button',{cls:'back',onclick:goHome},'←'),
+    el('button',{cls:'back','aria-label':'Go back',onclick:goHome},'←'),
     el('h2',{},'Sentence Practice'),
     el('span',{style:'font-size:13px;color:var(--muted);margin-left:auto'},(idx+1)+'/'+words.length)
   );
@@ -3016,6 +3188,7 @@ const FR_RESET={screen:'fhome',grammarId:null,grammarStep:0,quizIdx:0,quizAnswer
 function frGoHome(){FP=frLoad();Object.assign(FS,{...FR_RESET});render()}
 
 function frRender(){
+  KB={};
   const app=document.getElementById('app');
   app.textContent='';
   const screens={fhome:renderFrHome,fgrammar:renderFrGrammar,flearn:renderFrLearn,freview:renderFrReview,fsummary:renderFrSummary,fwordlist:renderFrWordList,ftopics:renderFrTopicSelect};
@@ -3051,7 +3224,8 @@ function speakFr(text){
   window.speechSynthesis.speak(u);
 }
 function speakBtnFr(text){
-  return el('button',{cls:'speak-btn',type:'button',onclick:e=>{e.stopPropagation();speakFr(text)}},'🔊');
+  return el('button',{cls:'speak-btn',type:'button',title:'Listen to pronunciation',
+    'aria-label':'Listen to pronunciation',onclick:e=>{e.stopPropagation();speakFr(text)}},'🔊');
 }
 
 // ── French type card ──────────────────────────────────────────────────────────
@@ -3083,6 +3257,54 @@ function buildFrTypeCard(w,opts){
   const submitBtn=btn('btn-primary','Check →',submit);
   let answered=false;
 
+  function showCorrectUI(){
+    ratingArea.classList.remove('hidden');
+    ratingArea.textContent='';
+    if(opts.trackSRS){
+      const row=div('rating-row');
+      for(const r of [{q:0,cls:'r-bad',l:'Again',s:'Reset',k:'1'},{q:1,cls:'r-hard',l:'Hard',s:'Short',k:'2'},{q:2,cls:'r-ok',l:'Good',s:'Normal',k:'3'},{q:3,cls:'r-easy',l:'Easy',s:'Longer',k:'4'}]){
+        const rb=el('button',{cls:'rbtn '+r.cls,type:'button',title:'Shortcut: '+r.k,onclick:()=>{r.q===0?opts.onWrong():opts.onCorrect(r.q)}});
+        rb.innerHTML=`${r.l}<sub>${r.s}</sub>`;row.append(rb);
+        KB[r.k]=()=>rb.click();
+      }
+      ratingArea.append(row);
+      KB['Enter']=()=>row.children[2].click();
+    } else {
+      const cb=btn('btn-ok btn-full','Continue →',()=>opts.onCorrect(2));
+      ratingArea.append(cb);
+      KB['Enter']=()=>cb.click();
+    }
+  }
+
+  // Manual override — see buildTypeCard for the German equivalent.
+  function acceptOverride(){
+    FS.stats.wrong--;FS.stats.correct++;
+    opts.unmarkMistake?.();
+    inp.classList.remove('input-err','input-warn');
+    inp.classList.add('input-ok');
+    fb.className='feedback fb-ok';
+    fb.textContent='';
+    fb.append(el('span',{},'✓ Accepted as correct — '),el('strong',{},w.f),' ',speakBtnFr(w.f));
+    showCorrectUI();
+  }
+
+  function showWrongUI(){
+    ratingArea.classList.remove('hidden');
+    ratingArea.textContent='';
+    const ph=w.p?` [${w.p}]`:'';
+    ratingArea.append(el('div',{style:'font-size:13px;color:var(--muted);margin-bottom:8px'},`Pronunciation: ${w.f}${ph}`));
+    const cb=btn('btn-ghost btn-full','Continue →',opts.onWrong);
+    ratingArea.append(cb);
+    KB['Enter']=()=>cb.click();
+    const orow=div('override-row');
+    const ob=el('button',{cls:'override-btn',type:'button',
+      title:'Use this if your answer was a valid alternative translation'},
+      '✓ My answer was actually correct');
+    ob.addEventListener('click',acceptOverride);
+    orow.append(ob);
+    ratingArea.append(orow);
+  }
+
   function submit(){
     if(answered)return;
     answered=true;
@@ -3097,37 +3319,21 @@ function buildFrTypeCard(w,opts){
       fb.append(ph,bold,rest,speakBtnFr(w.f));
       speakFr(w.f);
       FS.stats.correct++;
-      ratingArea.classList.remove('hidden');
-      if(opts.trackSRS){
-        const row=div('rating-row');
-        for(const r of [{q:0,cls:'r-bad',l:'Again',s:'Reset'},{q:1,cls:'r-hard',l:'Hard',s:'Short'},{q:2,cls:'r-ok',l:'Good',s:'Normal'},{q:3,cls:'r-easy',l:'Easy',s:'Longer'}]){
-          const rb=el('button',{cls:'rbtn '+r.cls,type:'button',onclick:()=>{r.q===0?opts.onWrong():opts.onCorrect(r.q)}});
-          rb.innerHTML=`${r.l}<sub>${r.s}</sub>`;row.append(rb);
-        }
-        ratingArea.append(row);
-      } else {
-        ratingArea.append(btn('btn-ok btn-full','Continue →',()=>opts.onCorrect(2)));
-      }
+      showCorrectUI();
     } else if(result==='close'){
       opts.markMistake?.();
       inp.classList.add('input-warn');
       fb.className='feedback fb-warn';
       fb.append(el('span',{},'Almost! '),el('strong',{},w.f),' ',speakBtnFr(w.f));
       speakFr(w.f);FS.stats.wrong++;
-      ratingArea.classList.remove('hidden');
-      const ph=w.p?` [${w.p}]`:'';
-      ratingArea.append(el('div',{style:'font-size:13px;color:var(--muted);margin-bottom:8px'},`Pronunciation: ${w.f}${ph}`));
-      ratingArea.append(btn('btn-ghost btn-full','Continue →',opts.onWrong));
+      showWrongUI();
     } else {
       opts.markMistake?.();
       inp.classList.add('input-err');
       fb.className='feedback fb-err';
       fb.append(el('span',{},'✗ Answer: '),el('strong',{},w.f),' ',speakBtnFr(w.f));
       speakFr(w.f);FS.stats.wrong++;
-      ratingArea.classList.remove('hidden');
-      const ph=w.p?` [${w.p}]`:'';
-      ratingArea.append(el('div',{style:'font-size:13px;color:var(--muted);margin-bottom:8px'},`Pronunciation: ${w.f}${ph}`));
-      ratingArea.append(btn('btn-ghost btn-full','Continue →',opts.onWrong));
+      showWrongUI();
     }
   }
 
@@ -3226,10 +3432,12 @@ function renderFrHome(){
   const hdr=div('card');
   hdr.style.background='linear-gradient(135deg,#1864ab,#1098ad)';
   hdr.style.color='#fff';
-  const langToggle=div('lang-toggle');langToggle.style.marginBottom='14px';
+  const togRow=div('');togRow.style.cssText='display:flex;gap:8px;align-items:center;justify-content:space-between;margin-bottom:14px';
+  const langToggle=div('lang-toggle');
   const deBtn=el('button',{cls:'lang-btn',type:'button',onclick:()=>{currentLang='de';render()}},'🇩🇪 German');
   const frBtn=el('button',{cls:'lang-btn active',type:'button',onclick:()=>{}},'🇫🇷 French');
   langToggle.append(deBtn,frBtn);
+  togRow.append(langToggle,themeBtn());
   const hdrInfo=div('');
   hdrInfo.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
     <div style="font-size:28px;font-weight:900;letter-spacing:-0.5px">🇫🇷 French</div>
@@ -3241,7 +3449,7 @@ function renderFrHome(){
     <div style="text-align:center"><div style="font-size:26px;font-weight:900">${intro}</div><div style="font-size:11px;opacity:.8">WORDS LEARNED</div></div>
     <div style="text-align:center"><div style="font-size:26px;font-weight:900">${due}</div><div style="font-size:11px;opacity:.8">DUE TODAY</div></div>
   </div>`;
-  hdr.append(langToggle,hdrInfo);
+  hdr.append(togRow,hdrInfo);
 
   // Progress bar
   const progCard=div('fr-prog-section');
@@ -3345,7 +3553,7 @@ function renderFrGrammar(){
 
 function renderFrGrammarList(){
   const hdr=div('page-hdr card card-sm');
-  hdr.append(el('button',{cls:'back',onclick:frGoHome},'←'),el('h2',{},'Grammar Lessons'));
+  hdr.append(el('button',{cls:'back','aria-label':'Go back',onclick:frGoHome},'←'),el('h2',{},'Grammar Lessons'));
 
   const items=FR_GRAMMAR.map(g=>{
     const done=frGrammarDone(g.id);
@@ -3369,7 +3577,7 @@ function renderFrGrammarStep(lesson){
   const step=lesson.steps[FS.grammarStep];
   const hdr=div('page-hdr card card-sm');
   hdr.append(
-    el('button',{cls:'back',onclick:()=>{FS.grammarId=null;frRender()}},'←'),
+    el('button',{cls:'back','aria-label':'Go back',onclick:()=>{FS.grammarId=null;frRender()}},'←'),
     el('h2',{},lesson.title),
     el('span',{style:'font-size:13px;color:var(--muted);margin-left:auto'},(FS.grammarStep+1)+'/'+lesson.steps.length)
   );
@@ -3407,7 +3615,7 @@ function renderFrGrammarStep(lesson){
 function renderFrGrammarQuiz(lesson){
   const hdr=div('page-hdr card card-sm');
   hdr.append(
-    el('button',{cls:'back',onclick:()=>{FS.grammarId=null;frRender()}},'←'),
+    el('button',{cls:'back','aria-label':'Go back',onclick:()=>{FS.grammarId=null;frRender()}},'←'),
     el('h2',{},'Quiz: '+lesson.title),
     el('span',{style:'font-size:13px;color:var(--muted);margin-left:auto'},(FS.quizIdx+1)+'/'+lesson.quiz.length)
   );
@@ -3475,7 +3683,7 @@ function renderFrLearn(){
   const hdr=div('card card-sm');
   const topRow=div('page-hdr');
   topRow.append(
-    el('button',{cls:'back',onclick:frGoHome},'←'),
+    el('button',{cls:'back','aria-label':'Go back',onclick:frGoHome},'←'),
     el('h2',{},'Learn: '+FS.learnTopic),
     el('span',{style:'font-size:13px;color:var(--muted);margin-left:auto'},`✓ ${done}/${total}`)
   );
@@ -3517,6 +3725,7 @@ function renderFrStudyCard(w){
   c.append(box);
   const goBtn=btn('btn-primary btn-full','Got it →',()=>advanceFrLearn(()=>FS.mcQ.push(w)));
   goBtn.style.marginTop='16px';c.append(goBtn);
+  KB['Enter']=()=>goBtn.click();
   setTimeout(()=>speakFr(w.f),350);
   return c;
 }
@@ -3538,7 +3747,10 @@ function renderFrMCCard(w){
       +(FS.mcDone&&isOk?' mc-correct':'')
       +(FS.mcDone&&!isOk&&FS.lastChosen===opt?' mc-wrong':'');
     const ob=el('button',{cls,type:'button'},opt);
-    if(!FS.mcDone)ob.addEventListener('click',()=>{FS.mcDone=true;FS.mcOk=isOk;FS.lastChosen=opt;frRender()});
+    if(!FS.mcDone){
+      ob.addEventListener('click',()=>{FS.mcDone=true;FS.mcOk=isOk;FS.lastChosen=opt;frRender()});
+      KB[String(grid.children.length+1)]=()=>ob.click();
+    }
     grid.append(ob);
   }
   c.append(grid);
@@ -3550,11 +3762,18 @@ function renderFrMCCard(w){
       speakFr(w.f);
       const nb=btn('btn-ok btn-full','Next →',()=>advanceFrLearn(()=>{resetMC();FS.typeQ.push(w);FS.stats.correct++}));
       nb.style.marginTop='14px';c.append(nb);
+      KB['Enter']=()=>nb.click();
     } else {
       const fb=div('feedback fb-err');fb.append('✗ Correct: ',el('strong',{},w.f),' ',speakBtnFr(w.f));c.append(fb);
       speakFr(w.f);
       const nb=btn('btn-ghost btn-full','Next →',()=>advanceFrLearn(()=>{resetMC();FS.mcQ.push(w);FS.stats.wrong++}));
       nb.style.marginTop='14px';c.append(nb);
+      KB['Enter']=()=>nb.click();
+      const orow=div('override-row');
+      const ob2=el('button',{cls:'override-btn',type:'button',title:'Count this answer as correct'},
+        '✓ Mark as correct (misclick)');
+      ob2.addEventListener('click',()=>advanceFrLearn(()=>{resetMC();FS.typeQ.push(w);FS.stats.correct++}));
+      orow.append(ob2);c.append(orow);
     }
   }
   return c;
@@ -3562,10 +3781,12 @@ function renderFrMCCard(w){
 
 // ── French learn type card ────────────────────────────────────────────────────
 function renderFrLearnTypeCard(w){
+  const prevLastWrong=frCard(w.id).lastWrong;
   return buildFrTypeCard(w,{
     onCorrect:()=>advanceFrLearn(()=>{FS.learnMastered.push(w);FS.stats.correct++}),
     onWrong:()=>advanceFrLearn(()=>{FS.typeQ.push(w);FS.stats.wrong++}),
     markMistake:()=>{frCard(w.id).lastWrong=today();frSave()},
+    unmarkMistake:()=>{frCard(w.id).lastWrong=prevLastWrong;frSave()},
     trackSRS:false,
   });
 }
@@ -3588,7 +3809,7 @@ function renderFrReview(){
 
   const hdr=div('page-hdr card card-sm');
   hdr.append(
-    el('button',{cls:'back',onclick:backFn},'←'),
+    el('button',{cls:'back','aria-label':'Go back',onclick:backFn},'←'),
     el('h2',{},title),
     el('span',{style:'font-size:13px;color:var(--muted);margin-left:auto'},FS.qIdx+'/'+FS.queue.length)
   );
@@ -3596,6 +3817,7 @@ function renderFrReview(){
   pb.innerHTML=`<div class="prog-fill" style="width:${(FS.queue.length?(FS.qIdx/FS.queue.length*100):0)}%"></div>`;
 
   const isSRSReview=FS.rtype==='due'||FS.rtype==='difficult'||FS.rtype==='comprehensive';
+  const prevLastWrong=frCard(w.id).lastWrong;
   const cardEl=buildFrTypeCard(w,{
     onCorrect:(q)=>{
       if(isSRSReview){
@@ -3616,6 +3838,11 @@ function renderFrReview(){
         frCard(w.id).lastWrong=today();frSave();
       }
     },
+    unmarkMistake:()=>{
+      if(FS.rtype==='today'||FS.rtype==='comprehensive'){
+        frCard(w.id).lastWrong=prevLastWrong;frSave();
+      }
+    },
     trackSRS:isSRSReview,
     retryBanner:FS.retrying?'Retry — words you missed earlier':null,
   });
@@ -3627,7 +3854,7 @@ function renderFrReview(){
 // ── French Topic Select ───────────────────────────────────────────────────────
 function renderFrTopicSelect(){
   const hdr=div('page-hdr card card-sm');
-  hdr.append(el('button',{cls:'back',onclick:frGoHome},'←'),el('h2',{},'Review by Topic'));
+  hdr.append(el('button',{cls:'back','aria-label':'Go back',onclick:frGoHome},'←'),el('h2',{},'Review by Topic'));
 
   const topics=frTopics();
   const items=[];
@@ -3660,7 +3887,7 @@ function renderFrWordList(){
 
   const hdr=div('page-hdr card card-sm');
   hdr.append(
-    el('button',{cls:'back',onclick:frGoHome},'←'),
+    el('button',{cls:'back','aria-label':'Go back',onclick:frGoHome},'←'),
     el('h2',{},'Word List'),
     el('span',{style:'font-size:13px;color:var(--muted);margin-left:auto'},FR_WORDS.length+' words')
   );
@@ -3693,7 +3920,7 @@ function renderFrWordListDetail(topic){
 
   const hdr=div('page-hdr card card-sm');
   hdr.append(
-    el('button',{cls:'back',onclick:()=>{FS.wordlistTopic=null;frRender()}},'←'),
+    el('button',{cls:'back','aria-label':'Go back',onclick:()=>{FS.wordlistTopic=null;frRender()}},'←'),
     el('h2',{},topic),
     el('span',{style:'font-size:13px;color:var(--muted);margin-left:auto'},introduced+'/'+words.length)
   );
